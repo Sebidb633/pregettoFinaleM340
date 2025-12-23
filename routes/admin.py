@@ -1,13 +1,11 @@
-import random
 import time
-import string
-from flask import Blueprint, redirect, url_for, render_template, request, jsonify, flash
-from flask_login import login_user, logout_user, current_user, login_required
+from flask import Blueprint, redirect, url_for, render_template, flash
+from flask_login import current_user, login_required
 
 from models.connection import db
-from models.model import User, VMRequest, VMConfig
+from models.model import VMRequest, VMConfig
 from proxmoxer import ProxmoxAPI
-from config import Config
+from models.config import Config
 
 app = Blueprint('admin', __name__)
 
@@ -61,7 +59,6 @@ def approve_vm(request_id):
                 memory=config.ram, 
                 cipassword=password,
                 ciuser=vm_req.owner.username
-                # ipconfig0=f"ip={ip_da_assegnare}/24,gw={gateway}"
             )
 
             proxmox.nodes(node).qemu(new_vmid).status.start.post()

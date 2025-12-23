@@ -1,10 +1,10 @@
 from flask import Blueprint, redirect, url_for, render_template, request, jsonify, flash
-from flask_login import login_user, logout_user, current_user, login_required
+from flask_login import current_user, login_required
 
 from models.connection import db
 from models.model import User, VMRequest, VMConfig
 from proxmoxer import ProxmoxAPI
-from config import Config
+from models.config import Config
 
 app = Blueprint('default', __name__)
 
@@ -46,8 +46,7 @@ def request_new():
             flash(f"Richiesta per {hostname} inviata con successo!")
             return redirect(url_for('default.request_vm'))
 
-    configs_potenza = VMConfig.query.filter_by(category='potenza').all()
-    return render_template('vm/vm-request.html',potenza=configs_potenza)
+    return render_template('vm/vm-request.html')
 
 @app.route('/get-vm-ip/<int:vmid>', methods=['GET'])
 @login_required
