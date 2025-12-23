@@ -23,7 +23,6 @@ class VMConfig(db.Model):
     """Tabella per definire i template (Bronze, Silver, Gold)"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
     cpu = db.Column(db.Integer, nullable=False)
     ram = db.Column(db.Integer, nullable=False)
     disk = db.Column(db.Integer, nullable=False)
