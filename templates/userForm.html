@@ -1,0 +1,53 @@
+<body>
+  {% extends "base.html" %}
+  {% block title %}Form Page{% endblock %}
+
+  {% block content %}
+  <div class="container w-25">
+    <h1>Aggiungi Utente</h1>
+    <form id="userForm">
+      <label for="username">Username:</label><br>
+      <input type="text" class="form-control" id="username" name="username" required><br>
+
+      <label for="email">Email:</label><br>
+      <input type="email" class="form-control" id="email" name="email" required><br>
+
+      <label for="password">Password:</label><br>
+      <input type="password" class="form-control" id="password" name="password" required><br>
+
+      <button type="submit" class="btn btn-outline-dark">Invia</button>
+    </form>
+  </div>
+
+  <div id="response"></div>
+
+  <script>
+    document.getElementById('userForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = {
+          username: document.getElementById('username').value,
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value,
+      };
+
+      fetch('/adduser', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        document.getElementById('response').innerText = result.message;
+      })
+      .catch(error => {
+        document.getElementById('response').innerText = 'Errore durante l\'invio';
+        console.error('Errore:', error);
+      });
+    });
+  </script>
+
+  {% endblock %}
+</body>
+</html>

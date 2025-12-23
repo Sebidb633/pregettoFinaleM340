@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-4">Richieste da Approvare <small class="text-muted">(Standard Change)</small></h2>
+
+    {% if pending_requests %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Utente</th>
+                    <th>Hostname</th>
+                    <th>Configurazione</th>
+                    <th class="text-center">Azione</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in pending_requests %}
+                <tr>
+                    <td><strong>{{ req.owner.username }}</strong></td>
+                    <td>{{ req.hostname }}</td>
+                    <td>
+                        <span class="badge bg-info text-dark">
+                            {{ req.config_name }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <form action="{{ url_for('admin.approve_vm', request_id=req.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                Approva
+                            </button>
+                        </form>
+                        <form action="{{ url_for('admin.reject_vm', request_id=req.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Rifiuta
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            Nessuna richiesta in attesa.
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

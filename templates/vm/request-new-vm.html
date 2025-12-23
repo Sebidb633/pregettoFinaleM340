@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}VM Richieste{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-4">Le mie Macchine Virtuali</h3>
+
+    {% if current_user.vms %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Hostname</th>
+                    <th>Stato</th>
+                    <th>Dati Accesso</th>
+                    <th>Indirizzo IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in current_user.vms %}
+                <tr>
+                    <td>
+                        <strong>{{ req.hostname }}</strong>
+                    </td>
+
+                    <td>
+                        {% if req.status == 'created' %}
+                            <span class="badge bg-success">Creata</span>
+                        {% elif req.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">In attesa</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ req.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if req.status == 'created' %}
+                            <ul class="list-unstyled mb-0">
+                                <!-- <li><strong>IP:</strong> {{ req.ip_address }}</li> -->
+                                <li><strong>User:</strong> {{ req.vm_user }}</li>
+                                <li><strong>Password:</strong> <code>{{ req.vm_password }}</code></li>
+                            </ul>
+                        {% else %}
+                            <em class="text-muted">In attesa di creazione...</em>
+                        {% endif %}
+                    </td>
+                    <td id="ip-{{ req.vm_id }}">
+                        {% if req.status == 'created' %}
+                            {% if req.ip_address and req.ip_address != "IP non ancora disponibile" %}
+                                <span class="badge bg-success">{{ req.ip_address }}</span>
+                            {% else %}
+                                <button onclick="checkIP('{{ req.vm_id }}')" class="btn btn-sm btn-warning">
+                                    Recupera IP
+                                </button>
+                            {% endif %}
+                        {% elif req.status == 'pending' %}
+                            <span class="badge bg-secondary">In approvazione...</span>
+                        {% else %}
+                            <span class="text-danger">{{ req.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            Non hai ancora richiesto nessuna macchina virtuale.
+        </div>
+    {% endif %}
+</div>
+<script>
+function checkIP(vmid) {
+    console.log("Tentativo di recupero IP per VMID:", vmid);
+    
+    if (!vmid || vmid === 'None') {
+        alert("Errore: ID VM non disponibile nel database.");
+        return;
+    }
+
+    const td = document.getElementById('ip-' + vmid);
+    const originalContent = td.innerHTML;
+    
+    td.innerHTML = '<div class="spinner-border spinner-border-sm text-primary"></div>';
+
+    fetch('/get-vm-ip/' + vmid)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Errore server: " + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.ip && data.ip !== "In attesa..." && data.ip !== "Agent non pronto" && data.ip !== "VM Spenta") {
+                td.innerHTML = '<span class="badge bg-success">' + data.ip + '</span>';
+            } else {
+                alert(data.details || "L'IP non è ancora pronto. Attendi un minuto.");
+                td.innerHTML = originalContent;
+            }
+        })
+        .catch(err => {
+            console.error("Errore Fetch:", err);
+            alert("Impossibile contattare il server o rotta non trovata.");
+            td.innerHTML = originalContent;
+        });
+}
+</script>
+{% endblock %}

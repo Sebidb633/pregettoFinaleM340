@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Richiedi VM{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Configura la tua nuova Macchina Virtuale</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="POST">
+
+                <div class="mb-3">
+                    <label for="hostname" class="form-label">Nome della macchina (Hostname):</label>
+                    <input type="text" class="form-control" id="hostname" name="hostname" placeholder="es. srv-web-01" required>
+                </div>
+
+                <div id="div_potenza" class="mb-3">
+                    <label for="config_id" class="form-label">Scegli il profilo hardware:</label>
+                    <select class="form-select" name="config_id" id="config_id">
+                        {% for conf in potenza %}
+                            <option value="{{ conf.id }}">{{ conf.name }} ({{ conf.cpu }} CPU, {{ conf.ram }}MB RAM)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Invia Richiesta</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

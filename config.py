@@ -1,0 +1,7 @@
+class Config:
+    PROXMOX_HOST='192.168.56.16'
+    PROXMOX_NODE='px2'
+    PROXMOX_USER='root@pam'
+    PROXMOX_TOKEN_VALUE='14aa7b54-8682-460b-b397-8dfcba1b205c'
+    PROXMOX_PASSWORD = 'Password&1'
+    PROXMOX_VERIFY_SSL=False

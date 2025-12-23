@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Modifica Profilo - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg p-4">
+                <h1 class="card-title text-center mb-4">Modifica il tuo Profilo</h1>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div id="alert-message-container"></div> <form id="edit-profile-form">
+                    
+                    <div class="mb-3">
+                        <label for="username_field" class="form-label">Nome Utente</label>
+                        <input type="text" id="username_field" name="username" class="form-control" 
+                               value="{{ user.username }}">
+                        </div>
+
+                    <div class="mb-3">
+                        <label for="email_field" class="form-label">Email</label>
+                        <input type="email" id="email_field" name="email" class="form-control" 
+                               value="{{ user.email }}">
+                        </div>
+
+                    <div class="mb-3">
+                        <label for="password_field" class="form-label">Password</label>
+                        <input type="password" id="password_field" name="password" class="form-control">
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg" id="save-btn">
+                            Salva Modifiche
+                        </button>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <a href="{{ url_for('auth.profile', id=user.id) }}" class="btn btn-outline-info">
+                        <i class="fas fa-arrow-left me-1"></i> Torna al Profilo
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('edit-profile-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const saveButton = document.getElementById('save-btn');
+        const originalButtonHtml = saveButton.innerHTML;
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvataggio...';
+
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        const url = "{{ url_for('default.update_user_by_id', id=user.id) }}";
+
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+            const alertContainer = document.getElementById('alert-message-container');
+            alertContainer.innerHTML = '';
+
+            if (response.ok) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        Profilo aggiornato con successo!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+            } else {
+                const errorMessage = result.error || 'Si è verificato un errore durante l\'aggiornamento.';
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        Errore: ${errorMessage}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+            }
+        } catch (error) {
+            console.error('Errore di rete:', error);
+            document.getElementById('alert-message-container').innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Errore di rete. Riprova più tardi.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+        } finally {
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalButtonHtml;
+        }
+    });
+</script>
+{% endblock %}
