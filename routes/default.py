@@ -46,7 +46,8 @@ def request_new():
             flash(f"Richiesta per {hostname} inviata con successo!")
             return redirect(url_for('default.request_vm'))
 
-    return render_template('vm/vm-request.html')
+    query = VMConfig.query.all()
+    return render_template('vm/vm-request.html',val=query)
 
 @app.route('/get-vm-ip/<int:vmid>', methods=['GET'])
 @login_required
